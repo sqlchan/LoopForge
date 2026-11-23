@@ -1,3 +1,6 @@
+//go:build ignore
+
+// 中文文档副本：Go 工具链拒绝非 ASCII 的包目录路径，故本测试不参与构建与测试。
 package apidocs
 
 import (

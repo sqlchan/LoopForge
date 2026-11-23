@@ -80,4 +80,4 @@ go test ./internal/runtime -run TestManagedLoginRuntimePaths -race -count=1
 ```
 
 Antigravity 的真实 Google 刷新实验单独 opt-in，命令及边界见
-[验证记录](proposals/runner-login-writeback-verification.md)。不与虚构认证代理共用进程。
+[验证记录](提案/Runner-登录写回验证.md)。不与虚构认证代理共用进程。

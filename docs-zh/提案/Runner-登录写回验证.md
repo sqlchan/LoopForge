@@ -2,7 +2,7 @@
 
 验证日期：2026-11-17。基于 `0dabc555`（Antigravity 登录支持），独立分支
 `feature/runner-login-writeback-verification`。这一阶段只有测试与实验记录，未把原型验证器接入
-Runner。后续正式实现位于 `feature/runner-managed-auth`，见[实现说明](../runner-login-refresh.md)。
+Runner。后续正式实现位于 `feature/runner-managed-auth`，见[实现说明](../Runner-本机登录与续期.md)。
 补充验证中，经用户明确授权，使用本机 Antigravity 登录
 真实刷新并保留最新凭证；未读取、刷新或修改本机 Codex / Claude Code 的真实登录。
 
