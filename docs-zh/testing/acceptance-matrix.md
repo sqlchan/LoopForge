@@ -1,0 +1,52 @@
+# 验收矩阵
+
+哪些自动化用例保护每项面向用户的能力，以及它们需要什么。“全新”指该用例还会针对干净的 `scripts/install.sh` 安装运行；“模型”指它会调用真实模型，且仅在 `AGENTFLOW_E2E_MODEL=1` 时运行。当前版本的结果见[验证记录](../validation.md)。
+
+| 能力 | 自动化覆盖 | 依赖 |
+| --- | --- | --- |
+| 一条命令安装、在浏览器中创建首个管理员 | `e2e/public/00-first-run.spec.mjs`、CI 作业 `first-run` | Docker · 全新安装 |
+| 自助注册、注册开关、密码规则、重名 | `internal/httpapi/auth_register_test.go`、`e2e/public/00-first-run.spec.mjs` | — |
+| 密码登录、来源检查、会话 Cookie、退出登录 | `internal/httpapi/auth_password_test.go`、`e2e/public/platform.spec.mjs`、`e2e/api/00-smoke.test.mjs` | — |
+| 入门检查清单、缺少密钥提醒 | `e2e/public/00-first-run.spec.mjs`、`e2e/public/composer.spec.mjs` | 全新安装 |
+| 扩展引导、关闭状态持久保留、能力提问、可选 GitHub、响应式输入区 | `e2e/public/welcome.spec.mjs`、`e2e/public/references.spec.mjs` | 真实能力回复需要模型 |
+| Main Bot 的执行器/模型选择与各角色 SOP 凭据就绪状态 | `e2e/public/executors.spec.mjs`、`internal/httpapi/assistant_provider_test.go` | 原生 CLI 网关 fixture 为可选启用；不涉及付费服务 |
+| 不使用 GitHub 的任务：脚本/审批与文档 Agent | `e2e/public/without-github.spec.mjs` | 文档 Agent 需要模型 |
+| 语言与主题偏好 | `e2e/public/platform.spec.mjs` | — |
+| 每个导航视图渲染时均无运行时/CSP 错误 | `e2e/ui/01-views.spec.mjs` | — |
+| AI 工作台会话、凭据向导、通知机器人与领域管理 | `e2e/ui/03-workbench-settings.spec.mjs` | 不调用模型或 WeCom |
+| 浏览 SkillHub 市场 | `e2e/ui/04-skillhub-market.spec.mjs` | SkillHub 代理为模拟实现；不安装任何内容 |
+| 项目、规则、Skills、MCP 服务器、Agent、工作流（CRUD） | `e2e/api/10-catalog.test.mjs` | — |
+| 需求：创建、搜索、编辑、评论、澄清门禁、派发、关闭/重开、删除 | `e2e/api/20-issues.test.mjs`、`e2e/ui/02-interactions.spec.mjs` | — |
+| AI 需求分析 | `e2e/ui/02-interactions.spec.mjs` | 模型 |
+| SOP 设计器：编辑节点、保存修订 | `e2e/ui/02-interactions.spec.mjs`、`e2e/api/10-catalog.test.mjs` | — |
+| 运行引擎：审批门禁、返工、重试、人工通过、暂停/恢复、取消、子 SOP、事件流 | `e2e/api/30-runs.test.mjs`、`e2e/public/platform.spec.mjs` | — |
+| 跨节点制品、契约错误 | `e2e/api/30-runs.test.mjs`、`e2e/api/35-runner-mode.test.mjs` | — |
+| 已接入的执行机（runner 绑定、心跳、任务） | `e2e/api/35-runner-mode.test.mjs` | 需要 runner 二进制 |
+| 跨节点共享沙箱、Docker 沙箱、静态预览与会话导航 | `e2e/api/36-cloud-pool.test.mjs`、`e2e/api/56-sandbox-preview.test.mjs`、`internal/preview/gateway_test.go` | Docker；实际远程池需要已配置的 worker；Chromium 预览为可选启用 |
+| 使用真实执行器的 Agent 节点、AI 运行评估 | `e2e/api/40-model.test.mjs` | 模型 |
+| 端到端交付 SOP：规划、修复、评审、测试、审批、总结 | `e2e/api/45-delivery-model.test.mjs` | 模型 |
+| 工作区：git 历史、受保护文件、冲突、shell、IDE | `e2e/api/55-workspace.test.mjs`、`e2e/ui/03-workspace.spec.mjs` | — |
+| 运行工作区中的人工接管与比较交换式编辑 | `e2e/api/68-workspace-edit.test.mjs` | 需要仓库 fixture；不推送 |
+| 账号之间的权限边界 | `e2e/api/58-permissions.test.mjs` | — |
+| 认证边界与项目角色权限 | `e2e/api/64-auth-permissions.test.mjs` | 角色走查可选第二个用户 |
+| Main Bot 会话、附件、定时提示词 | `e2e/api/60-assistant-lifecycle.test.mjs`、`e2e/public/composer.spec.mjs` | 模型（回复类用例） |
+| 无模型的助手会话：对话记录、重命名、归档、分支与分享 | `e2e/api/69-assistant-sessions.test.mjs` | — |
+| 需求空间：CRUD、时间线、讨论串、制品与成员 | `e2e/api/60-spaces.test.mjs` | — |
+| 任务组与多角色协作 | `internal/httpapi/rooms_test.go`、`internal/repo/group_run_view_test.go`、`internal/runtime/workspace_preparation_test.go`、`webtest/tests/collaboration-groups.test.mjs` | 不调用模型 |
+| 群组 SOP 交接的制品继承 | `internal/engine/state_helpers_cases_test.go`、`internal/engine/ops_validation_cases_test.go` | 仅引擎 `GroupSOPHandoff`。`migrations/015_sop_handoff_jobs.sql` 创建 `sop_handoff_jobs`，`migrations/017_bot_sop_controls.sql` 修改该表，但没有任何 Go 服务读写该表，因此该任务表不在自动覆盖范围内 |
+| 脚本与 Agent 共享沙箱，且仓库指令可见 | `internal/runtime/sandbox_script_test.go` | 使用 `AGENTFLOW_DOCKER_SCRIPT_SMOKE=1` 和本地 `alpine:3.20` 运行 Docker 用例 |
+| 数据在容器重建后仍然保留 | 通过 `scripts/test-container.sh` 运行 `e2e/container-persistence.mjs` | Docker |
+| 房间、定时派发、平台 MCP 工具以及凭据标记绝不泄漏 | `e2e/api/50-platform.test.mjs` | — |
+| 项目集成：通知机器人、洞察来源、业务领域与 WeCom 身份绑定 | `e2e/api/62-integrations.test.mjs` | 不发起对 WeCom 或洞察服务的调用 |
+| 知识搜索与评审队列 | `e2e/api/50-platform.test.mjs`、`e2e/ui/02-interactions.spec.mjs` | 需要知识服务 |
+| GitHub Issue 导入、PR 发现与合并 | `internal/tracker/github_test.go`、`internal/tracker/merge_mr_test.go`、`internal/runtime/github_mcp_test.go`，实时用例：`internal/tracker/github_live_test.go` | 实时用例：`AGENTFLOW_GITHUB_LIVE_WRITE=1`、一次性仓库与令牌文件 |
+| GitHub 凭据行与单独的手动路径 | `e2e/public/github-setup.spec.mjs` | 不进行实时 GitHub 写入 |
+| 仓库写权限 | `internal/httpapi/repository_authz_test.go` | — |
+| 调用清理保留无关的活动运行 | `e2e/api/05-cleanup-scope.test.mjs` | — |
+| 确定性的路由边界：校验、未知资源与缺少凭据 | `e2e/api/90-route-sweep.test.mjs` | 不涉及模型、知识写入或外部工单 |
+| LoopForge Local 的工作流、安装器、仪表盘 | `local/tests/e2e/` | Python · 实时宿主运行需要 CodeBuddy |
+
+## 未自动覆盖的内容
+
+- 付费的 Codex 与 Claude Code 执行；已安装的原生 CLI、自定义网关协议、MCP 调用、工具限制和凭据边界均使用本地 fixture 服务验证。
+- WeCom 通知机器人与知识服务，需要运维账号。
